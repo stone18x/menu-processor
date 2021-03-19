@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-func RandomMenus(w http.ResponseWriter, r *http.Request) {
+func RandomMenu(w http.ResponseWriter, r *http.Request) {
 	days, err := strconv.Atoi(r.URL.Query().Get("days"))
 	if err != nil || days < 1 || days > 5 {
 		days = 5
 	}
 
-	log.Printf("Fetch random menus for %d days", days)
+	log.Printf("Fetch random menu for %d days", days)
 
 	menus := []Menu{}
 	menus = append(menus, Menu{Title: "Big Mac"}, Menu{Title: "Gemüsepfanne"}, Menu{Title: "Gegrillter Lachs"},
