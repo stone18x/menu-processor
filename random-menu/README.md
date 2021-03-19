@@ -1,0 +1,5 @@
+# Deployment
+
+```
+gcloud functions deploy RandomMenu --runtime go113 --trigger-http --allow-unauthenticated --project menu-processor
+```
