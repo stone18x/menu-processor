@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"stani.com/menuprocessor/function"
-
 	"github.com/GoogleCloudPlatform/functions-framework-go/funcframework"
+	"github.com/joho/godotenv"
+	"stani.com/menuprocessor"
 )
 
 func main() {
@@ -15,12 +15,16 @@ func main() {
 	if err := funcframework.RegisterHTTPFunctionContext(ctx, "/", function.RandomMenu); err != nil {
 		log.Fatalf("funcframework.RegisterHTTPFunctionContext: %v\n", err)
 	}
-	// Use PORT environment variable, or default to 8080.
-	port := "8080"
-	if envPort := os.Getenv("PORT"); envPort != "" {
-		port = envPort
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
-	if err := funcframework.Start(port); err != nil {
+
+	cloudFunctionPort := os.Getenv("CLOUD_FUNCTION_PORT")
+	log.Printf("Using port: %s", cloudFunctionPort)
+
+	if err := funcframework.Start(cloudFunctionPort); err != nil {
 		log.Fatalf("funcframework.Start: %v\n", err)
 	}
 }
