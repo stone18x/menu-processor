@@ -18,10 +18,20 @@ func RandomMenu(w http.ResponseWriter, r *http.Request) {
 	if err != nil || days < 1 || days > 5 {
 		days = 5
 	}
+	
+	layout := "2006-01-02"
+	startDateString := r.URL.Query().Get("startDate")
+	startDate, err := time.Parse(layout, startDateString)
+	now := time.Now()
+	
+	if err != nil || startDate.Before(now) {
+		startDate = now
+	}
+	
 
-	log.Printf("Fetch random menu for %d days", days)
+	log.Printf("Fetch random menu for %d days beginning with %s", days, startDate.Format(layout))
 
-	dishes, err := fetchRandomDishes(days)
+	dishes, err := fetchRandomDishes(days, startDate)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err != nil {
@@ -31,7 +41,7 @@ func RandomMenu(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func fetchRandomDishes(days int) ([]Dish, error) {
+func fetchRandomDishes(days int, startDate time.Time) ([]Dish, error) {
 	ctx := context.Background()
 	conf := &firebase.Config{ProjectID: os.Getenv("FIRESTORE_PROJECT_ID")}
 	app, err := firebase.NewApp(ctx, conf)
@@ -73,6 +83,9 @@ func fetchRandomDishes(days int) ([]Dish, error) {
 	for len(temp) < days {
 		randomNumber := rand.Intn(len(dishes))
 		dish := dishes[randomNumber]
+		dish.Date = startDate.Format("2006-01-02")
+		startDate = startDate.AddDate(0, 0, 1)
+		log.Printf(dish.Date)
 		temp[dish.ID] = dish
 	}
 
